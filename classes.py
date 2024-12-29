@@ -29,28 +29,24 @@ class LinearRegression:
         return error
 
 class LogisticRegression:
-    def __init__(self, learning_rate, threshold, iterations=100):
-        self.learning_rate = learning_rate
-        self.iterations = iterations
-        self.threshold = threshold
-
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
-    def fit(self, X, y):
+    def fit(self, X, y, learning_rate, threshold, iterations=100, L1_reg=0, L2_reg=0):
         n_samples, n_features = X.shape
+        self.threshold = threshold
         self.n_labels = len(np.unique(y))
         self.weights, self.bias = np.zeros(n_features), 0
 
-        for i in range(self.iterations):
+        for i in range(iterations):
             y_pred = self.sigmoid(X.dot(self.weights)+self.bias)
             diff = y - y_pred
 
-            dw = X.T.dot(diff) / n_samples
+            dw = X.T.dot(diff) / n_samples + L1_reg * np.sign(self.weights) + 2 * L2_reg * self.weights
             db = np.sum(diff) / n_samples
 
-            self.weights -= self.learning_rate * dw
-            self.bias -= self.learning_rate * db
+            self.weights -= learning_rate * dw
+            self.bias -= learning_rate * db
 
     def predict(self, X):
         return np.where(self.sigmoid(X.dot(self.weights)+self.bias)<self.threshold, 1, 0)
