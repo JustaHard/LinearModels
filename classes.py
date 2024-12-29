@@ -39,6 +39,7 @@ class LogisticRegression:
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
+        self.n_labels = len(np.unique(y))
         self.weights, self.bias = np.zeros(n_features), 0
 
         for i in range(self.iterations):
@@ -56,3 +57,52 @@ class LogisticRegression:
 
     def accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
+
+    def confusion_matrix(self, y_true, y_pred):
+        matrix = np.zeros((self.n_labels, self.n_labels), dtype=int)
+
+        for true, pred in zip(y_true, y_pred):
+            matrix[true, pred] += 1
+
+        return matrix
+
+    def find_TP(self, y_true, y_pred, positive_class):
+        return np.sum((y_pred==positive_class) & (y_true==positive_class))
+
+    def find_FP(self, y_true, y_pred, positive_class):
+        return np.sum((y_pred==positive_class) & (y_true!=positive_class))
+
+    def find_FN(self, y_true, y_pred, positive_class):
+        return np.sum((y_pred!=positive_class) & (y_true==positive_class))
+
+    def precision(self, y_true, y_pred, positive_class=1):
+        TP = self.find_TP(y_true, y_pred, positive_class)
+        FP = self.find_FP(y_true, y_pred, positive_class)
+
+        if TP + FP == 0:
+            return 0.0
+        return TP / (TP + FP)
+
+    def recall(self, y_true, y_pred, positive_class=1):
+        TP = self.find_TP(y_true, y_pred, positive_class)
+        FN = self.find_FN(y_true, y_pred, positive_class)
+
+        if TP + FN == 0:
+            return 0.0
+        return TP / (TP + FN)
+
+    def f1(self, y_true, y_pred, positive_class=1):
+        recall = self.recall(y_true, y_pred, positive_class)
+        precision = self.precision(y_true, y_pred, positive_class)
+
+        if recall + precision == 0:
+            return 0.0
+        return 2 * recall * precision / (recall + precision)
+
+    def f_beta(self, y_true, y_pred, beta, positive_class=1):
+        recall = self.recall(y_true, y_pred, positive_class)
+        precision = self.precision(y_true, y_pred, positive_class)
+
+        if recall + precision == 0:
+            return 0.0
+        return (beta ** 2 + 1) * recall * precision/(recall + beta ** 2 * precision)
