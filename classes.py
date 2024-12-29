@@ -25,8 +25,22 @@ class LinearRegression:
         return y_pred
 
     def mse(self, y_true, y_pred):
-        error = np.mean((y_true - y_pred)**2)
-        return error
+        return np.mean((y_true-y_pred)**2)
+
+    def mae(self, y_true, y_pred):
+        return np.mean(np.abs(y_true-y_pred))
+
+    def mape(self, y_true, y_pred):
+        return np.mean(np.abs((y_true-y_pred) / y_true))
+
+    def smape(self, y_true, y_pred):
+        return np.mean(2*abs(y_true-y_pred)/(y_true+y_pred))
+
+    def wape(self, y_true, y_pred):
+        return np.sum(abs(y_true-y_pred))/np.sum(y_true)
+
+    def rmsle(self, y_true, y_pred, const):
+        return np.sqrt(np.mean((np.log(y_true+const)-np.log(y_pred-const))**2))
 
 class LogisticRegression:
     def __init__(self, learning_rate, threshold, iterations=100):
