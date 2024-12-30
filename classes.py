@@ -21,8 +21,9 @@ class LinearModel:
         n_samples, n_features = features.shape
         self.weights, self.bias = np.zeros(n_features), 0
 
-        for _ in range(iterations):
-            diff = self.calculate_diff(features, targets)
+        for i in range(iterations):
+            preds = self.predict(features)
+            diff = preds - targets
 
             dw = features.T.dot(diff) / n_samples + L1_reg * np.sign(self.weights) + 2 * L2_reg * self.weights
             db = np.sum(diff) / n_samples
@@ -31,26 +32,15 @@ class LinearModel:
             self.bias -= learning_rate * db
 
             if verbose:
-                print(f'Iteration number: {_+1}; Current loss: {np.mean(diff)}')
+                print(f'Iteration number: {i+1}; Current loss: {np.mean(diff)}')
 
 class LinearRegression(LinearModel):
     """
     Класс моделей линейной регрессии. Экземпляр абстрактного класса линейных моделей (LinearModel).
     """
-    def calculate_diff(self, features:np.ndarray, targets:np.ndarray)->np.ndarray:
-        """
-        Расчитывает разницу между истинными целевыми значениями и предсказанными на основании текущих весов модели.
-
-        :param features: Матрица признаков (ndarray).
-        :param targets: Матрица истинных целевых значений (ndarray).
-        :return: Разница
-            между истинными целевыми значениями и предсказанными на основании текущих весов модели (ndarray).
-        """
-        return self.predict(features) - targets
-
     def predict(self, features:np.ndarray)->np.ndarray:
         """
-        Расчитывает целевые значения по заданной матрице признаков и весах уже обученной модели.
+        Расчитывает целевые значения по заданной матрице признаков на имеющихся весах.
 
         :param features: Матрица признаков значений, которые необходимо предсказать (ndarray).
         :return: Предсказанные целевые значения (ndarray).
@@ -138,15 +128,12 @@ class LogisticRegression(LinearModel):
         super().fit(features, targets, learning_rate=learning_rate, iterations=iterations,
                     L1_reg=L1_reg, L2_reg=L2_reg, verbose=verbose)
 
-    # !!!НЕОХОДИМО ИЗБАВИТЬСЯ ОТ ДУБЛИРОВАНИЯ КОДА!!!
-    def calculate_pred(self, X):
-        return self.sigmoid(X.dot(self.weights)+self.bias)
-
-    def calculate_diff(self, X, y):
-        return y - self.calculate_pred(X)
-
     def predict(self, X):
-        return np.where(self.calculate_pred(X)<self.threshold, 0, 1)
+        self.preds = self.sigmoid(X.dot(self.weights) + self.bias)
+        if isinstance(self, LinearModel) and not isinstance(self, LogisticRegression):
+            return self.preds
+        else:
+            return np.where(self.preds < self.threshold, 0, 1)
 
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
