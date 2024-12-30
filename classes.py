@@ -1,24 +1,31 @@
 import numpy as np
 
-class LinearRegression:
-    def fit(self, X, y, learning_rate, iterations=100, L1_reg=0, L2_reg=0):
+class LinearModel:
+    def __init__(self, learning_rate=0.01, iterations=1000, L1_reg=0, L2_reg=0):
+        self.learning_rate = learning_rate
+        self.iterations = iterations
+        self.L1_reg = L1_reg
+        self.L2_reg = L2_reg
+
+    def fit(self, X, y):
         n_samples, n_features = X.shape
-        self.weights = np.zeros(n_features)
-        self.bias = 0
+        self.weights, self.bias = np.zeros(n_features), 0
 
-        for i in range(iterations):
-            y_pred = np.dot(X, self.weights) + self.bias
-            diff = y_pred - y
+        for _ in range(self.iterations):
+            diff = self.calculate_diff(X, y)
 
-            dw = np.dot(X.T, (diff)) / n_samples + L1_reg * np.sign(self.weights) + 2 * L2_reg * self.weights
+            dw = X.T.dot(diff) / n_samples + self.L1_reg * np.sign(self.weights) + 2 * self.L2_reg * self.weights
             db = np.sum(diff) / n_samples
 
-            self.weights -= learning_rate * dw
-            self.bias -= learning_rate * db
+            self.weights -= self.learning_rate * dw
+            self.bias -= self.learning_rate * db
+
+class LinearRegression(LinearModel):
+    def calculate_diff(self, X, y):
+        return np.dot(X, self.weights) + self.bias - y
 
     def predict(self, X):
-        y_pred = np.dot(X, self.weights) + self.bias
-        return y_pred
+        return np.dot(X, self.weights) + self.bias
 
     def mse(self, y_true, y_pred):
         return np.mean((y_true-y_pred)**2)
@@ -35,25 +42,16 @@ class LinearRegression:
     def wape(self, y_true, y_pred):
         return np.sum(abs(y_true-y_pred))/np.sum(y_true)
 
-class LogisticRegression:
+class LogisticRegression(LinearModel):
+    def __init__(self, threshold=0.5, learning_rate=0.01, iterations=1000, L1_reg=0, L2_reg=0):
+        super().__init__(learning_rate, iterations, L1_reg, L2_reg)
+        self.threshold = threshold
+
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
-    def fit(self, X, y, learning_rate, threshold, iterations=100, L1_reg=0, L2_reg=0):
-        n_samples, n_features = X.shape
-        self.threshold = threshold
-        self.n_labels = len(np.unique(y))
-        self.weights, self.bias = np.zeros(n_features), 0
-
-        for i in range(iterations):
-            y_pred = self.sigmoid(X.dot(self.weights)+self.bias)
-            diff = y - y_pred
-
-            dw = X.T.dot(diff) / n_samples + L1_reg * np.sign(self.weights) + 2 * L2_reg * self.weights
-            db = np.sum(diff) / n_samples
-
-            self.weights -= learning_rate * dw
-            self.bias -= learning_rate * db
+    def calculate_diff(self, X, y):
+        return y - self.sigmoid(X.dot(self.weights) + self.bias)
 
     def predict(self, X):
         return np.where(self.sigmoid(X.dot(self.weights)+self.bias)<self.threshold, 1, 0)
@@ -62,7 +60,7 @@ class LogisticRegression:
         return np.mean(y_true == y_pred)
 
     def confusion_matrix(self, y_true, y_pred):
-        matrix = np.zeros((self.n_labels, self.n_labels), dtype=int)
+        matrix = np.zeros((2, 2), dtype=int)
 
         for true, pred in zip(y_true, y_pred):
             matrix[true, pred] += 1
