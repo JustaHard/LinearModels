@@ -47,14 +47,23 @@ class LogisticRegression(LinearModel):
         super().__init__(learning_rate, iterations, L1_reg, L2_reg)
         self.threshold = threshold
 
-    def sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
-
     def calculate_diff(self, X, y):
         return y - self.sigmoid(X.dot(self.weights) + self.bias)
 
     def predict(self, X):
         return np.where(self.sigmoid(X.dot(self.weights)+self.bias)<self.threshold, 1, 0)
+
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-z))
+
+    def find_TP(self, y_true, y_pred):
+        return np.sum((y_pred==1) & (y_true==1))
+
+    def find_FP(self, y_true, y_pred):
+        return np.sum((y_pred==1) & (y_true!=1))
+
+    def find_FN(self, y_true, y_pred):
+        return np.sum((y_pred!=1) & (y_true==1))
 
     def accuracy(self, y_true, y_pred):
         return np.mean(y_true == y_pred)
@@ -67,42 +76,33 @@ class LogisticRegression(LinearModel):
 
         return matrix
 
-    def find_TP(self, y_true, y_pred, positive_class):
-        return np.sum((y_pred==positive_class) & (y_true==positive_class))
-
-    def find_FP(self, y_true, y_pred, positive_class):
-        return np.sum((y_pred==positive_class) & (y_true!=positive_class))
-
-    def find_FN(self, y_true, y_pred, positive_class):
-        return np.sum((y_pred!=positive_class) & (y_true==positive_class))
-
-    def precision(self, y_true, y_pred, positive_class=1):
-        TP = self.find_TP(y_true, y_pred, positive_class)
-        FP = self.find_FP(y_true, y_pred, positive_class)
+    def precision(self, y_true, y_pred):
+        TP = self.find_TP(y_true, y_pred)
+        FP = self.find_FP(y_true, y_pred)
 
         if TP + FP == 0:
             return 0.0
         return TP / (TP + FP)
 
-    def recall(self, y_true, y_pred, positive_class=1):
-        TP = self.find_TP(y_true, y_pred, positive_class)
-        FN = self.find_FN(y_true, y_pred, positive_class)
+    def recall(self, y_true, y_pred):
+        TP = self.find_TP(y_true, y_pred)
+        FN = self.find_FN(y_true, y_pred)
 
         if TP + FN == 0:
             return 0.0
         return TP / (TP + FN)
 
-    def f1(self, y_true, y_pred, positive_class=1):
-        recall = self.recall(y_true, y_pred, positive_class)
-        precision = self.precision(y_true, y_pred, positive_class)
+    def f1(self, y_true, y_pred):
+        recall = self.recall(y_true, y_pred)
+        precision = self.precision(y_true, y_pred)
 
         if recall + precision == 0:
             return 0.0
         return 2 * recall * precision / (recall + precision)
 
-    def f_beta(self, y_true, y_pred, beta, positive_class=1):
-        recall = self.recall(y_true, y_pred, positive_class)
-        precision = self.precision(y_true, y_pred, positive_class)
+    def f_beta(self, y_true, y_pred, beta):
+        recall = self.recall(y_true, y_pred)
+        precision = self.precision(y_true, y_pred)
 
         if recall + precision == 0:
             return 0.0
