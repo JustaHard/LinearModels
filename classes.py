@@ -1,11 +1,12 @@
 import numpy as np
 
 class LinearModel:
-    def __init__(self, learning_rate=0.01, iterations=1000, L1_reg=0, L2_reg=0):
+    def __init__(self, learning_rate=0.01, iterations=1000, L1_reg=0, L2_reg=0, verbose=False):
         self.learning_rate = learning_rate
         self.iterations = iterations
         self.L1_reg = L1_reg
         self.L2_reg = L2_reg
+        self.verbose = verbose
 
     def fit(self, X, y):
         n_samples, n_features = X.shape
@@ -19,6 +20,9 @@ class LinearModel:
 
             self.weights -= self.learning_rate * dw
             self.bias -= self.learning_rate * db
+
+            if self.verbose:
+                print(f'Iteration number: {_+1}; Current loss: {np.mean(diff)}')
 
 class LinearRegression(LinearModel):
     def calculate_diff(self, X, y):
@@ -43,8 +47,8 @@ class LinearRegression(LinearModel):
         return np.sum(abs(y_true-y_pred))/np.sum(y_true)
 
 class LogisticRegression(LinearModel):
-    def __init__(self, threshold=0.5, learning_rate=0.01, iterations=1000, L1_reg=0, L2_reg=0):
-        super().__init__(learning_rate, iterations, L1_reg, L2_reg)
+    def __init__(self, threshold=0.5, learning_rate=0.01, iterations=1000, L1_reg=0, L2_reg=0, verbose=False):
+        super().__init__(learning_rate, iterations, L1_reg, L2_reg, verbose)
         self.threshold = threshold
 
     def calculate_diff(self, X, y):
