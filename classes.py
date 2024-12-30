@@ -1,61 +1,152 @@
 import numpy as np
 
 class LinearModel:
-    def __init__(self, learning_rate=0.01, iterations=1000, L1_reg=0, L2_reg=0, verbose=False):
-        self.learning_rate = learning_rate
-        self.iterations = iterations
-        self.L1_reg = L1_reg
-        self.L2_reg = L2_reg
-        self.verbose = verbose
+    """
+    Абстрактный класс линейных моделей.
+    """
+    def fit(self, features:np.ndarray, targets:np.ndarray, *,
+            learning_rate:float=0.01, iterations:int=1000, L1_reg:float=0,
+            L2_reg:float=0, verbose:bool=False)->None:
+        """
+        Функция обучения модели.
 
-    def fit(self, X, y):
-        n_samples, n_features = X.shape
+        :param features: Матрица признаков (ndarray).
+        :param targets: Матрица целевых значений (ndarray).
+        :param learning_rate: Шаг градиентного спуска (float).
+        :param iterations: Число итераций обучения модели (шагов градиентного спуска) (int > 0).
+        :param L1_reg: Коэффициент L1 регуляризации (float).
+        :param L2_reg: Коэффициент L2 регуляризации (float).
+        :param verbose: Индикатор, определяющий вывод промежуточных результатов обучения (bool).
+        """
+        n_samples, n_features = features.shape
         self.weights, self.bias = np.zeros(n_features), 0
 
-        for _ in range(self.iterations):
-            diff = self.calculate_diff(X, y)
+        for _ in range(iterations):
+            diff = self.calculate_diff(features, targets)
 
-            dw = X.T.dot(diff) / n_samples + self.L1_reg * np.sign(self.weights) + 2 * self.L2_reg * self.weights
+            dw = features.T.dot(diff) / n_samples + L1_reg * np.sign(self.weights) + 2 * L2_reg * self.weights
             db = np.sum(diff) / n_samples
 
-            self.weights -= self.learning_rate * dw
-            self.bias -= self.learning_rate * db
+            self.weights -= learning_rate * dw
+            self.bias -= learning_rate * db
 
-            if self.verbose:
+            if verbose:
                 print(f'Iteration number: {_+1}; Current loss: {np.mean(diff)}')
 
 class LinearRegression(LinearModel):
-    def calculate_diff(self, X, y):
-        return np.dot(X, self.weights) + self.bias - y
+    """
+    Класс моделей линейной регрессии. Экземпляр абстрактного класса линейных моделей (LinearModel).
+    """
+    def calculate_diff(self, features:np.ndarray, targets:np.ndarray)->np.ndarray:
+        """
+        Расчитывает разницу между истинными целевыми значениями и предсказанными на основании текущих весов модели.
 
-    def predict(self, X):
-        return np.dot(X, self.weights) + self.bias
+        :param features: Матрица признаков (ndarray).
+        :param targets: Матрица истинных целевых значений (ndarray).
+        :return: Разница
+            между истинными целевыми значениями и предсказанными на основании текущих весов модели (ndarray).
+        """
+        return self.predict(features) - targets
 
-    def mse(self, y_true, y_pred):
-        return np.mean((y_true-y_pred)**2)
+    def predict(self, features:np.ndarray)->np.ndarray:
+        """
+        Расчитывает целевые значения по заданной матрице признаков и весах уже обученной модели.
 
-    def mae(self, y_true, y_pred):
-        return np.mean(np.abs(y_true-y_pred))
+        :param features: Матрица признаков значений, которые необходимо предсказать (ndarray).
+        :return: Предсказанные целевые значения (ndarray).
+        """
+        return np.dot(features, self.weights) + self.bias
 
-    def mape(self, y_true, y_pred):
-        return np.mean(np.abs((y_true-y_pred) / y_true))
+    def mse(self, features_true:np.ndarray, features_predicted:np.ndarray)->np.floating:
+        """
+        Расчитывает среднеквадратичную ошибку предсказанных значений относительно истинных целевых значений.
 
-    def smape(self, y_true, y_pred):
-        return np.mean(2*abs(y_true-y_pred)/(y_true+y_pred))
+        :param features_true: Матрица истинных целевых значений (ndarray).
+        :param features_predicted: Матрица предсказанных значений (ndarray).
+        :return: Среднеквадратичная ошибка предсказанных значений относительно истинных целевых значений (floating).
+        """
+        return np.mean((features_true - features_predicted) ** 2)
 
-    def wape(self, y_true, y_pred):
-        return np.sum(abs(y_true-y_pred))/np.sum(y_true)
+    def mae(self, features_true:np.ndarray, features_predicted:np.ndarray)->np.floating:
+        """
+        Расчитывает среднюю абсолютную ошибку предсказанных значений относительно истинных целевых значений.
+
+        :param features_true: Матрица истинных целевых значений (ndarray).
+        :param features_predicted: Матрица предсказанных значений (ndarray).
+        :return: Средняя абсолютная ошибка предсказанных
+            значений относительно истинных целевых значений (floating).
+        """
+        return np.mean(np.abs(features_true - features_predicted))
+
+    def mape(self, features_true:np.ndarray, features_predicted:np.ndarray)->np.floating:
+        """
+        Расчитывает среднюю абсолютную процентную ошибку предсказанных
+            значений относительно истинных целевых значений.
+
+        :param features_true: Матрица истинных целевых значений (ndarray).
+        :param features_predicted: Матрица предсказанных значений (ndarray).
+        :return: Средняя абсолютная процентная ошибка предсказанных
+            значений относительно истинных целевых значений (floating).
+        """
+        return np.mean(np.abs((features_true - features_predicted) / features_true))
+
+    def smape(self, features_true:np.ndarray, features_predicted:np.ndarray)->np.floating:
+        """
+        Расчитывает симметричную среднюю абсолютную процентную ошибку
+            предсказанных значений относительно истинных целевых значений.
+
+        :param features_true: Матрица истинных целевых значений (ndarray).
+        :param features_predicted: Матрица предсказанных значений (ndarray).
+        :return: Симметричная средняя абсолютная процентная ошибка
+            предсказанных значений относительно истинных целевых значений (floating).
+        """
+        return np.mean(2 * abs(features_true - features_predicted) / (features_true + features_predicted))
+
+    def wape(self, features_true:np.ndarray, features_predicted:np.ndarray)->np.floating:
+        """
+        Расчитывает взвешенную абсолютную процентную ошибку
+            предсказанных значений относительно истинных целевых значений.
+
+        :param features_true: Матрица истинных целевых значений (ndarray).
+        :param features_predicted: Матрица предсказанных значений (ndarray).
+        :return: Взвешенная абсолютная процентная ошибка предсказанных
+            значений относительно истинных целевых значений (floating).
+        """
+        return np.sum(abs(features_true - features_predicted))/np.sum(features_true)
 
 class LogisticRegression(LinearModel):
-    def __init__(self, threshold=0.5, learning_rate=0.01, iterations=1000, L1_reg=0, L2_reg=0, verbose=False):
-        super().__init__(learning_rate, iterations, L1_reg, L2_reg, verbose)
+    """
+    Класс моделей логистической регрессии (бинарной классификации).
+    Экземпляр абстрактного класса линейных моделей (LinearModel)
+    """
+    def fit(self, features:np.ndarray, targets:np.ndarray, *,
+            threshold:float=0.5, learning_rate:float=0.01, iterations:int=1000, L1_reg:float=0,
+            L2_reg:float=0, verbose:bool=False)->None:
+        """
+        Функция обучения модели.
+
+        :param features: Матрица признаков (ndarray).
+        :param targets: Матрица целевых значений (ndarray).
+        :param threshold: Граница, выше которой предсказанное целевое значение помечается, как 1 (float [0:1]).
+        :param learning_rate: Шаг градиентного спуска (float).
+        :param iterations: Число итераций обучения модели (шагов градиентного спуска) (int > 0).
+        :param L1_reg: Коэффициент L1 регуляризации (float).
+        :param L2_reg: Коэффициент L2 регуляризации (float).
+        :param verbose: Индикатор, определяющий вывод промежуточных результатов обучения (bool).
+        """
         self.threshold = threshold
+        super().fit(features, targets, learning_rate=learning_rate, iterations=iterations,
+                    L1_reg=L1_reg, L2_reg=L2_reg, verbose=verbose)
+
+    # !!!НЕОХОДИМО ИЗБАВИТЬСЯ ОТ ДУБЛИРОВАНИЯ КОДА!!!
+    def calculate_pred(self, X):
+        return self.sigmoid(X.dot(self.weights)+self.bias)
 
     def calculate_diff(self, X, y):
-        return y - self.sigmoid(X.dot(self.weights) + self.bias)
+        return y - self.calculate_pred(X)
 
     def predict(self, X):
-        return np.where(self.sigmoid(X.dot(self.weights)+self.bias)<self.threshold, 1, 0)
+        return np.where(self.calculate_pred(X)<self.threshold, 0, 1)
 
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
