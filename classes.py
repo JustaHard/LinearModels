@@ -6,7 +6,9 @@ class LinearModel:
     """
     Абстрактный класс линейных моделей.
     """
-    def fit(self, features:np.ndarray|pd.DataFrame, targets:np.ndarray|pd.Series, *,
+    def fit(self, features:np.ndarray[int, float]|pd.DataFrame[int, float],
+            targets:np.ndarray[int, float]|pd.Series[int, float],
+            *,
             learning_rate:float=0.01, iterations:int=1000, L1_reg:float=0,
             L2_reg:float=0, verbose:bool=False)->None:
         """
@@ -40,7 +42,7 @@ class LinearRegression(LinearModel):
     """
     Класс моделей линейной регрессии. Экземпляр абстрактного класса линейных моделей (LinearModel).
     """
-    def predict(self, features:np.ndarray|pd.DataFrame)->np.ndarray:
+    def predict(self, features:np.ndarray[int, float]|pd.DataFrame[int, float])->np.ndarray[int, float]:
         """
         Расчитывает целевые значения по заданной матрице признаков на имеющихся весах.
 
@@ -49,7 +51,8 @@ class LinearRegression(LinearModel):
         """
         return np.dot(features, self.weights) + self.bias
 
-    def mse(self, features_true:np.ndarray|pd.DataFrame, features_predicted:np.ndarray|pd.DataFrame)->np.floating:
+    def mse(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
+            features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
         """
         Расчитывает среднеквадратичную ошибку предсказанных значений относительно истинных целевых значений.
 
@@ -59,7 +62,8 @@ class LinearRegression(LinearModel):
         """
         return np.mean((features_true - features_predicted) ** 2)
 
-    def mae(self, features_true:np.ndarray|pd.DataFrame, features_predicted:np.ndarray|pd.DataFrame)->np.floating:
+    def mae(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
+            features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
         """
         Расчитывает среднюю абсолютную ошибку предсказанных значений относительно истинных целевых значений.
 
@@ -70,7 +74,8 @@ class LinearRegression(LinearModel):
         """
         return np.mean(np.abs(features_true - features_predicted))
 
-    def mape(self, features_true:np.ndarray, features_predicted:np.ndarray)->np.floating:
+    def mape(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
+             features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
         """
         Расчитывает среднюю абсолютную процентную ошибку предсказанных
             значений относительно истинных целевых значений.
@@ -82,7 +87,8 @@ class LinearRegression(LinearModel):
         """
         return np.mean(np.abs((features_true - features_predicted) / features_true))
 
-    def smape(self, features_true:np.ndarray, features_predicted:np.ndarray)->np.floating:
+    def smape(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
+              features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
         """
         Расчитывает симметричную среднюю абсолютную процентную ошибку
             предсказанных значений относительно истинных целевых значений.
@@ -94,7 +100,8 @@ class LinearRegression(LinearModel):
         """
         return np.mean(2 * abs(features_true - features_predicted) / (features_true + features_predicted))
 
-    def wape(self, features_true:np.ndarray, features_predicted:np.ndarray)->np.floating:
+    def wape(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
+             features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
         """
         Расчитывает взвешенную абсолютную процентную ошибку
             предсказанных значений относительно истинных целевых значений.
@@ -111,7 +118,9 @@ class LogisticRegression(LinearModel):
     Класс моделей логистической регрессии (бинарной классификации).
     Экземпляр абстрактного класса линейных моделей (LinearModel)
     """
-    def fit(self, features:np.ndarray, targets:np.ndarray, *,
+    def fit(self, features:np.ndarray[int, float]|pd.DataFrame[int, float],
+            targets:np.ndarray[int]|pd.DataFrame[int],
+            *,
             threshold:float=0.5, learning_rate:float=0.01, iterations:int=1000, L1_reg:float=0,
             L2_reg:float=0, verbose:bool=False)->None:
         """
@@ -130,7 +139,7 @@ class LogisticRegression(LinearModel):
         super().fit(features, targets, learning_rate=learning_rate, iterations=iterations,
                     L1_reg=L1_reg, L2_reg=L2_reg, verbose=verbose)
 
-    def predict(self, features:np.ndarray)->np.ndarray:
+    def predict(self, features:np.ndarray[int, float]|pd.DataFrame[int, float])->np.ndarray[int, float]:
         """
         Рассчитывает целевые значения по заданной матрице признаков на имеющихся весах
 
@@ -143,7 +152,7 @@ class LogisticRegression(LinearModel):
         else:
             return np.where(self.preds < self.threshold, 0, 1)
 
-    def sigmoid(self, values:np.ndarray)->np.ndarray:
+    def sigmoid(self, values:np.ndarray[int, float])->np.ndarray[int, float]:
         """
         Приводит заданные значения в формат от 0 до 1.
 
@@ -152,7 +161,8 @@ class LogisticRegression(LinearModel):
         """
         return 1 / (1 + np.exp(-values))
 
-    def find_TP(self, targets_true:np.ndarray, targets_predicted:np.ndarray)->np.integer:
+    def find_TP(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+                targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.integer:
         """
         Расчитывает количество верноопределенных положительных целевых значений (1).
 
@@ -162,7 +172,8 @@ class LogisticRegression(LinearModel):
         """
         return np.sum((targets_predicted == 1) & (targets_true == 1))
 
-    def find_FP(self, targets_true:np.ndarray, targets_predicted:np.ndarray)->np.integer:
+    def find_FP(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+                targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.integer:
         """
         Расчитывает количество значений, определенных, как положительные (1), когда их истинное значение отрицательно(0).
 
@@ -172,7 +183,8 @@ class LogisticRegression(LinearModel):
         """
         return np.sum((targets_predicted == 1) & (targets_true != 1))
 
-    def find_FN(self, targets_true:np.ndarray, targets_predicted:np.ndarray)->np.integer:
+    def find_FN(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+                targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.integer:
         """
         Расчитывает количество значений, определенных, как отрицательные (0), когда их истинное значение положительно (1).
 
@@ -182,7 +194,8 @@ class LogisticRegression(LinearModel):
         """
         return np.sum((targets_predicted != 1) & (targets_true == 1))
 
-    def accuracy(self, targets_true:np.ndarray, targets_predicted:np.ndarray)->np.floating:
+    def accuracy(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+                 targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.floating:
         """
         Расчитывает долю правильных прогнозов по отношению к общему количеству предположений.
 
@@ -192,7 +205,8 @@ class LogisticRegression(LinearModel):
         """
         return np.mean(targets_true == targets_predicted)
 
-    def confusion_matrix(self, targets_true:np.ndarray, targets_predicted:np.ndarray)->np.ndarray:
+    def confusion_matrix(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+                         targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.ndarray[int]:
         """
         Создает матрицу ошибок предсказаний модели.
 
@@ -207,7 +221,8 @@ class LogisticRegression(LinearModel):
 
         return matrix
 
-    def precision(self, targets_true:np.ndarray, targets_predicted:np.ndarray)->np.floating|float:
+    def precision(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+                  targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.floating:
         """
         Расчитывает долю правильно предсказанных положительных объектов среди всех объектов, предсказанных положительным классом.
 
@@ -219,10 +234,11 @@ class LogisticRegression(LinearModel):
         FP = self.find_FP(targets_true, targets_predicted)
 
         if TP + FP == 0:
-            return 0.0
+            return np.floating(0.0)
         return TP / (TP + FP)
 
-    def recall(self, targets_true:np.ndarray, targets_predicted:np.ndarray)->np.floating|float:
+    def recall(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+               targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.floating:
         """
         Расчитывает долю правильно предсказанных положительных объектов среди всех объектов положительного класса
 
@@ -234,10 +250,11 @@ class LogisticRegression(LinearModel):
         FN = self.find_FN(targets_true, targets_predicted)
 
         if TP + FN == 0:
-            return 0.0
+            return np.floating(0.0)
         return TP / (TP + FN)
 
-    def f1(self, targets_true:np.ndarray, targets_predicted:np.ndarray)->np.floating|float:
+    def f1(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+           targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.floating:
         """
         Расчитывает среднее гармоническое метрик Precision и Recall при их равной важности.
 
@@ -249,10 +266,13 @@ class LogisticRegression(LinearModel):
         precision = self.precision(targets_true, targets_predicted)
 
         if recall + precision == 0:
-            return 0.0
+            return np.floating(0.0)
         return 2 * recall * precision / (recall + precision)
 
-    def f_beta(self, targets_true:np.ndarray, targets_predicted:np.ndarray, beta:float=1.0)->np.floating|float:
+    def f_beta(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
+               targets_predicted:np.ndarray[int]|pd.DataFrame[int],
+               *,
+               beta:float=1.0)->np.floating:
         """
         Расчитывает среднее гармоническое метрик Precision и Recall при их разной важности.
 
@@ -266,5 +286,5 @@ class LogisticRegression(LinearModel):
         precision = self.precision(targets_true, targets_predicted)
 
         if recall + precision == 0:
-            return 0.0
+            return np.floating(0.0)
         return (beta ** 2 + 1) * recall * precision/(recall + beta ** 2 * precision)
