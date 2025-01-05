@@ -6,8 +6,8 @@ class LinearModel:
     """
     Абстрактный класс линейных моделей.
     """
-    def fit(self, features:np.ndarray[int, float]|pd.DataFrame[int, float],
-            targets:np.ndarray[int, float]|pd.Series[int, float],
+    def fit(self, features:np.ndarray|pd.DataFrame,
+            targets:np.ndarray|pd.Series,
             *,
             learning_rate:float=0.01, iterations:int=1000, L1_reg:float=0,
             L2_reg:float=0, verbose:bool=False)->None:
@@ -42,7 +42,7 @@ class LinearRegression(LinearModel):
     """
     Класс моделей линейной регрессии. Экземпляр абстрактного класса линейных моделей (LinearModel).
     """
-    def predict(self, features:np.ndarray[int, float]|pd.DataFrame[int, float])->np.ndarray[int, float]:
+    def predict(self, features:np.ndarray|pd.DataFrame)->np.ndarray:
         """
         Расчитывает целевые значения по заданной матрице признаков на имеющихся весах.
 
@@ -52,63 +52,63 @@ class LinearRegression(LinearModel):
         """
         return np.dot(features, self.weights) + self.bias
 
-    def mse(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
-            features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
+    def mse(self, features_true:np.ndarray|pd.Series,
+            features_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает среднеквадратичную ошибку предсказанных значений относительно истинных целевых значений.
 
-        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|DataFrame[int, float]).
-        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|DataFrame[int, float]).
+        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|Series[int, float]).
+        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|Series[int, float]).
         :return: Среднеквадратичная ошибка предсказанных значений относительно истинных целевых значений (floating).
         """
         return np.mean((features_true - features_predicted) ** 2)
 
-    def mae(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
-            features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
+    def mae(self, features_true:np.ndarray|pd.Series,
+            features_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает среднюю абсолютную ошибку предсказанных значений относительно истинных целевых значений.
 
-        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|DataFrame[int, float]).
-        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|DataFrame[int, float]).
+        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|Series[int, float]).
+        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|Series[int, float]).
         :return: Средняя абсолютная ошибка предсказанных
             значений относительно истинных целевых значений (floating).
         """
         return np.mean(np.abs(features_true - features_predicted))
 
-    def mape(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
-             features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
+    def mape(self, features_true:np.ndarray|pd.Series,
+             features_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает среднюю абсолютную процентную ошибку предсказанных
             значений относительно истинных целевых значений.
 
-        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|DataFrame[int, float]).
-        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|DataFrame[int, float]).
+        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|Series[int, float]).
+        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|Series[int, float]).
         :return: Средняя абсолютная процентная ошибка предсказанных
             значений относительно истинных целевых значений (floating).
         """
         return np.mean(np.abs((features_true - features_predicted) / features_true))
 
-    def smape(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
-              features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
+    def smape(self, features_true:np.ndarray|pd.Series,
+              features_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает симметричную среднюю абсолютную процентную ошибку
             предсказанных значений относительно истинных целевых значений.
 
-        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|DataFrame[int, float]).
-        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|DataFrame[int, float]).
+        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|Series[int, float]).
+        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|Series[int, float]).
         :return: Симметричная средняя абсолютная процентная ошибка
             предсказанных значений относительно истинных целевых значений (floating).
         """
         return np.mean(2 * abs(features_true - features_predicted) / (features_true + features_predicted))
 
-    def wape(self, features_true:np.ndarray[int, float]|pd.DataFrame[int, float],
-             features_predicted:np.ndarray[int, float]|pd.DataFrame[int, float])->np.floating:
+    def wape(self, features_true:np.ndarray|pd.Series,
+             features_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает взвешенную абсолютную процентную ошибку
             предсказанных значений относительно истинных целевых значений.
 
-        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|DataFrame[int, float]).
-        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|DataFrame[int, float]).
+        :param features_true: Матрица истинных целевых значений (ndarray[int, float]|Series[int, float]).
+        :param features_predicted: Матрица предсказанных значений (ndarray[int, float]|Series[int, float]).
         :return: Взвешенная абсолютная процентная ошибка предсказанных
             значений относительно истинных целевых значений (floating).
         """
@@ -119,8 +119,8 @@ class LogisticRegression(LinearModel):
     Класс моделей логистической регрессии (бинарной классификации).
     Экземпляр абстрактного класса линейных моделей (LinearModel)
     """
-    def fit(self, features:np.ndarray[int, float]|pd.DataFrame[int, float],
-            targets:np.ndarray[int]|pd.DataFrame[int],
+    def fit(self, features:np.ndarray|pd.DataFrame,
+            targets:np.ndarray|pd.Series,
             *,
             threshold:float=0.5, learning_rate:float=0.01, iterations:int=1000, L1_reg:float=0,
             L2_reg:float=0, verbose:bool=False)->None:
@@ -128,7 +128,7 @@ class LogisticRegression(LinearModel):
         Функция обучения модели.
 
         :param features: Матрица признаков (ndarray[int, float]|DataFrame[int, float]).
-        :param targets: Матрица целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets: Матрица целевых значений (ndarray[int]|Series[int]).
         :param threshold: Граница, выше которой предсказанное целевое значение помечается, как 1 (float [0:1]).
         :param learning_rate: Шаг градиентного спуска (float).
         :param iterations: Число итераций обучения модели (шагов градиентного спуска) (int > 0).
@@ -140,7 +140,7 @@ class LogisticRegression(LinearModel):
         super().fit(features, targets, learning_rate=learning_rate, iterations=iterations,
                     L1_reg=L1_reg, L2_reg=L2_reg, verbose=verbose)
 
-    def predict(self, features:np.ndarray[int, float]|pd.DataFrame[int, float])->np.ndarray[int, float]:
+    def predict(self, features:np.ndarray|pd.DataFrame)->np.ndarray:
         """
         Рассчитывает целевые значения по заданной матрице признаков на имеющихся весах
 
@@ -154,7 +154,7 @@ class LogisticRegression(LinearModel):
         else:
             return np.where(self.preds < self.threshold, 0, 1)
 
-    def sigmoid(self, values:np.ndarray[int, float])->np.ndarray[int, float]:
+    def sigmoid(self, values:np.ndarray)->np.ndarray:
         """
         Приводит заданные значения в формат от 0 до 1.
 
@@ -163,57 +163,57 @@ class LogisticRegression(LinearModel):
         """
         return 1 / (1 + np.exp(-values))
 
-    def find_TP(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-                targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.integer:
+    def find_TP(self, targets_true:np.ndarray|pd.Series,
+                targets_predicted:np.ndarray|pd.Series)->np.integer:
         """
         Расчитывает количество верноопределенных положительных целевых значений (1).
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :return: Количество верноопределенных положительных значений (integer).
         """
         return np.sum((targets_predicted == 1) & (targets_true == 1))
 
-    def find_FP(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-                targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.integer:
+    def find_FP(self, targets_true:np.ndarray|pd.Series,
+                targets_predicted:np.ndarray|pd.Series)->np.integer:
         """
         Расчитывает количество значений, определенных, как положительные (1), когда их истинное значение отрицательно(0).
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :return: Количество значений, определенных, как положительные, когда их истинное значение отрицательно (integer).
         """
         return np.sum((targets_predicted == 1) & (targets_true != 1))
 
-    def find_FN(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-                targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.integer:
+    def find_FN(self, targets_true:np.ndarray|pd.Series,
+                targets_predicted:np.ndarray|pd.Series)->np.integer:
         """
         Расчитывает количество значений, определенных, как отрицательные (0), когда их истинное значение положительно (1).
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :return: Количество значений, определенных, как отрицательные, когда их истинное значение положительно (integer).
         """
         return np.sum((targets_predicted != 1) & (targets_true == 1))
 
-    def accuracy(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-                 targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.floating:
+    def accuracy(self, targets_true:np.ndarray|pd.Series,
+                 targets_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает долю правильных прогнозов по отношению к общему количеству предположений.
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :return: Доля правильных прогнозов по отношению к общему количеству предположений (floating).
         """
         return np.mean(targets_true == targets_predicted)
 
-    def confusion_matrix(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-                         targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.ndarray[int]:
+    def confusion_matrix(self, targets_true:np.ndarray|pd.Series,
+                         targets_predicted:np.ndarray|pd.Series)->np.ndarray:
         """
         Создает матрицу ошибок предсказаний модели.
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :return: Матрица ошибок предсказаний модели (ndarray[int]).
         """
         matrix = np.zeros((2, 2), dtype=int)
@@ -223,14 +223,14 @@ class LogisticRegression(LinearModel):
 
         return matrix
 
-    def precision(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-                  targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.floating:
+    def precision(self, targets_true:np.ndarray|pd.Series,
+                  targets_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает долю правильно предсказанных положительных объектов среди всех объектов,
             предсказанных положительным классом.
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :return: Доля правильно предсказанных положительных объектов среди всех
             объектов, предсказанных положительным классом (floating).
         """
@@ -241,13 +241,13 @@ class LogisticRegression(LinearModel):
             return np.floating(0.0)
         return TP / (TP + FP)
 
-    def recall(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-               targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.floating:
+    def recall(self, targets_true:np.ndarray|pd.Series,
+               targets_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает долю правильно предсказанных положительных объектов среди всех объектов положительного класса
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :return: Доля правильно предсказанных положительных объектов среди всех
             объектов положительного класса (floating).
         """
@@ -258,13 +258,13 @@ class LogisticRegression(LinearModel):
             return np.floating(0.0)
         return TP / (TP + FN)
 
-    def f1(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-           targets_predicted:np.ndarray[int]|pd.DataFrame[int])->np.floating:
+    def f1(self, targets_true:np.ndarray|pd.Series,
+           targets_predicted:np.ndarray|pd.Series)->np.floating:
         """
         Расчитывает среднее гармоническое метрик Precision и Recall при их равной важности.
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :return: Среднее гармоническое метрик Precision и Recall при их равной важности (floating).
         """
         recall = self.recall(targets_true, targets_predicted)
@@ -274,15 +274,15 @@ class LogisticRegression(LinearModel):
             return np.floating(0.0)
         return 2 * recall * precision / (recall + precision)
 
-    def f_beta(self, targets_true:np.ndarray[int]|pd.DataFrame[int],
-               targets_predicted:np.ndarray[int]|pd.DataFrame[int],
+    def f_beta(self, targets_true:np.ndarray|pd.Series,
+               targets_predicted:np.ndarray|pd.Series,
                *,
                beta:float=1.0)->np.floating:
         """
         Расчитывает среднее гармоническое метрик Precision и Recall при их разной важности.
 
-        :param targets_true: Матрица истинных целевых значений (ndarray[int]|DataFrame[int]).
-        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|DataFrame[int]).
+        :param targets_true: Матрица истинных целевых значений (ndarray[int]|Series[int]).
+        :param targets_predicted: Матрица предсказанных целевых значений (ndarray[int]|Series[int]).
         :param beta: Коэффициент важности Precision: beta = 1 - Равная важность коэффициентов;
             beta > 1 - повышенная важность Precision; 0 < beta < 1 - повышенная важность Recall (float).
         :return: Среднее гармоническое метрик Precision и Recall при их разной важности (floating).
